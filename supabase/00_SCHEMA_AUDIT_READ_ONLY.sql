@@ -6,7 +6,7 @@ WITH expected(tab) AS (VALUES
  ('notifications'),('beta_test_results'))
 SELECT e.tab, EXISTS(SELECT 1 FROM information_schema.tables t WHERE t.table_schema='public' AND t.table_name=e.tab) AS exists
 FROM expected e ORDER BY e.tab;
-
+ 
 SELECT table_name, column_name, data_type, udt_name, is_nullable, column_default
 FROM information_schema.columns
 WHERE table_schema='public'
