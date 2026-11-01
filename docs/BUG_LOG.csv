@@ -1,0 +1,2 @@
+Issue ID,Date,Severity,Module,Steps to reproduce,Expected,Actual,Owner,Status
+EXAMPLE-01,2026-11-02,P2,Matching,Open /matches with blank interests,Neutral interest score,Verify with team,Developer C,OPEN

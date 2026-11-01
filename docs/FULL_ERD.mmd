@@ -1,0 +1,143 @@
+erDiagram
+    AUTH_USERS ||--o| PROFILES : has
+    PROFILES ||--o{ STUDENT_SKILLS : declares
+    SKILLS ||--o{ STUDENT_SKILLS : selected_in
+    PROFILES ||--o{ STUDENT_INTERESTS : likes
+    INTERESTS ||--o{ STUDENT_INTERESTS : selected_in
+    PROFILES ||--o{ AVAILABILITY_SLOTS : available_at
+    PROFILES ||--o{ PROJECTS : owns
+    PROJECTS ||--o{ PROJECT_REQUIRED_SKILLS : requires
+    SKILLS ||--o{ PROJECT_REQUIRED_SKILLS : needed_for
+    PROJECTS ||--o{ PROJECT_INTERESTS : categorized_as
+    INTERESTS ||--o{ PROJECT_INTERESTS : topic_of
+    PROJECTS ||--o{ PROJECT_MEETING_SLOTS : meets_at
+    PROJECTS ||--o{ APPLICATIONS : receives
+    PROFILES ||--o{ APPLICATIONS : submits
+    PROJECTS ||--o{ PROJECT_MEMBERS : contains
+    PROFILES ||--o{ PROJECT_MEMBERS : participates
+    PROJECTS ||--o{ PROJECT_INVITATIONS : sends_for
+    PROFILES ||--o{ PROJECT_INVITATIONS : invited_student
+    PROFILES ||--o{ PROJECT_INVITATIONS : inviting_student
+    PROFILES ||--o{ NOTIFICATIONS : receives
+    PROFILES ||--o{ BETA_TEST_RESULTS : participates_in
+
+    AUTH_USERS {
+        uuid id PK
+        text email
+        timestamptz created_at
+    }
+    PROFILES {
+        uuid id PK, FK
+        text display_name
+        text faculty
+        text programme
+        smallint year_of_study
+        text bio
+        text avatar_url
+        smallint weekly_hours
+        text[] preferred_project_types
+        boolean discoverable
+        timestamptz consent_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    SKILLS {
+        uuid id PK
+        text name UK
+        text category
+    }
+    STUDENT_SKILLS {
+        uuid student_id PK, FK
+        uuid skill_id PK, FK
+        text proficiency
+    }
+    INTERESTS {
+        uuid id PK
+        text name UK
+    }
+    STUDENT_INTERESTS {
+        uuid student_id PK, FK
+        uuid interest_id PK, FK
+    }
+    AVAILABILITY_SLOTS {
+        uuid id PK
+        uuid student_id FK
+        smallint weekday
+        time start_time
+        time end_time
+    }
+    PROJECTS {
+        uuid id PK
+        uuid owner_id FK
+        text title
+        text description
+        text project_type
+        smallint slots_needed
+        smallint min_weekly_hours
+        text status
+        date deadline
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    PROJECT_REQUIRED_SKILLS {
+        uuid project_id PK, FK
+        uuid skill_id PK, FK
+        boolean mandatory
+        smallint importance
+    }
+    PROJECT_INTERESTS {
+        uuid project_id PK, FK
+        uuid interest_id PK, FK
+    }
+    PROJECT_MEETING_SLOTS {
+        uuid id PK
+        uuid project_id FK
+        smallint weekday
+        time start_time
+        time end_time
+    }
+    APPLICATIONS {
+        uuid id PK
+        uuid project_id FK
+        uuid applicant_id FK
+        text note
+        text status
+        timestamptz created_at
+        timestamptz responded_at
+    }
+    PROJECT_MEMBERS {
+        uuid project_id PK, FK
+        uuid student_id PK, FK
+        text member_role
+        text membership_status
+        timestamptz joined_at
+    }
+    PROJECT_INVITATIONS {
+        uuid id PK
+        uuid project_id FK
+        uuid inviter_id FK
+        uuid invitee_id FK
+        text note
+        text status
+        timestamptz created_at
+        timestamptz responded_at
+    }
+    NOTIFICATIONS {
+        uuid id PK
+        uuid recipient_id FK
+        text event_type
+        text target_type
+        uuid target_id
+        timestamptz read_at
+        timestamptz created_at
+    }
+    BETA_TEST_RESULTS {
+        uuid id PK
+        uuid tester_id FK
+        text task_code
+        boolean success
+        int duration_seconds
+        smallint difficulty_1_to_5
+        text comment
+        timestamptz created_at
+    }
