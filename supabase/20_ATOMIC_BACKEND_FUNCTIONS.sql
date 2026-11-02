@@ -72,7 +72,8 @@ BEGIN
     VALUES(v_user,(v_item->>'weekday')::smallint,
            (v_item->>'start_time')::time,(v_item->>'end_time')::time);
   END LOOP;
-END $fn$;
+END;
+$fn$;
 
 CREATE OR REPLACE FUNCTION public.save_my_profile(
   p_display_name text, p_faculty text, p_programme text, p_year_of_study smallint,
@@ -134,7 +135,8 @@ BEGIN
  INSERT INTO public.project_members(project_id,student_id,member_role,membership_status)
  VALUES(v_project_id,v_user,'owner','active') ON CONFLICT (project_id,student_id) DO NOTHING;
  RETURN v_project_id;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.create_project(
  p_title text,p_description text,p_project_type text,p_slots_needed smallint,
  p_min_weekly_hours smallint,p_deadline date,
@@ -168,7 +170,8 @@ BEGIN
  INSERT INTO public.notifications(recipient_id,event_type,target_type,target_id)
  VALUES(v_owner,'application_received','application',v_app);
  RETURN v_app;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.apply_to_project(p_project_id uuid,p_note text)
 RETURNS uuid LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
 SELECT private.apply_to_project_impl(p_project_id,p_note);
@@ -208,7 +211,8 @@ BEGIN
   WHERE id=p_application_id;
  INSERT INTO public.notifications(recipient_id,event_type,target_type,target_id)
  VALUES(v_applicant,'application_'||p_decision,'application',p_application_id);
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.decide_application(p_application_id uuid,p_decision text)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.decide_application_impl(p_application_id,p_decision);
@@ -224,7 +228,8 @@ BEGIN
  IF NOT FOUND OR v_applicant<>v_user THEN RAISE EXCEPTION 'Request not found or unauthorized'; END IF;
  IF v_status<>'pending' THEN RAISE EXCEPTION 'Only pending requests may be withdrawn'; END IF;
  UPDATE public.applications SET status='withdrawn',responded_at=now() WHERE id=p_application_id;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.withdraw_application(p_application_id uuid)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.withdraw_application_impl(p_application_id);
@@ -257,7 +262,8 @@ BEGIN
  INSERT INTO public.notifications(recipient_id,event_type,target_type,target_id)
  VALUES(p_invitee_id,'project_invitation','invitation',v_invitation);
  RETURN v_invitation;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.invite_candidate(p_project_id uuid,p_invitee_id uuid,p_note text)
 RETURNS uuid LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.invite_candidate_impl(p_project_id,p_invitee_id,p_note);
@@ -296,7 +302,8 @@ BEGIN
  WHERE id=p_invitation_id;
  INSERT INTO public.notifications(recipient_id,event_type,target_type,target_id)
  VALUES(v_inviter,'invitation_'||p_decision,'invitation',p_invitation_id);
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.respond_invitation(p_invitation_id uuid,p_decision text)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.respond_invitation_impl(p_invitation_id,p_decision);
@@ -309,7 +316,8 @@ BEGIN
  UPDATE public.notifications SET read_at=now()
  WHERE id=p_notification_id AND recipient_id=auth.uid();
  IF NOT FOUND THEN RAISE EXCEPTION 'Notification not found'; END IF;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.mark_notification_read(p_notification_id uuid)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.mark_notification_read_impl(p_notification_id);
@@ -328,7 +336,8 @@ BEGIN
    RAISE EXCEPTION 'Only the project owner can change status';
  END IF;
  UPDATE public.projects SET status=p_status, updated_at=now() WHERE id=p_project_id;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.set_project_status(p_project_id uuid,p_status text)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.set_project_status_impl(p_project_id,p_status);
@@ -346,7 +355,8 @@ BEGIN
  SELECT status INTO v_status FROM public.project_invitations WHERE id=p_invitation_id FOR UPDATE;
  IF v_status<>'pending' THEN RAISE EXCEPTION 'Only pending invitations can be cancelled'; END IF;
  UPDATE public.project_invitations SET status='cancelled',responded_at=now() WHERE id=p_invitation_id;
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.cancel_invitation(p_invitation_id uuid)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.cancel_invitation_impl(p_invitation_id);
@@ -364,7 +374,8 @@ BEGIN
  END IF;
  UPDATE public.project_members SET membership_status='left'
  WHERE project_id=p_project_id AND student_id=auth.uid();
-END $fn$;
+END;
+$fn$;
 CREATE OR REPLACE FUNCTION public.leave_project(p_project_id uuid)
 RETURNS void LANGUAGE sql SECURITY INVOKER SET search_path='' AS $fn$
  SELECT private.leave_project_impl(p_project_id);
@@ -416,3 +427,6 @@ GRANT EXECUTE ON FUNCTION public.set_project_status(uuid,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.cancel_invitation(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.leave_project(uuid) TO authenticated;
 COMMIT;
+
+-- Notify Supabase/PostgREST that the callable RPC list has changed.
+NOTIFY pgrst, 'reload schema';

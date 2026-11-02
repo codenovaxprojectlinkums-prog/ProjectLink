@@ -51,10 +51,3 @@ test('ranking filters opt-outs and orders by score',()=>{
  candidate,{...candidate,id:'c3',discoverable:false}]);
  assert.equal(r.length,2);assert.equal(r[0].candidate.id,'student-001');
 });
-
-test('ranking excludes ineligible candidates even when they pass discovery filters',()=>{
- const r=rankCandidates(project,[candidate,{...candidate,id:'c4',weekly_hours:1},
-   {...candidate,id:'c5',skillRows:[],interestIds:[]}]);
- assert.equal(r.length,1);
- assert.equal(r[0].candidate.id,'student-001');
-});

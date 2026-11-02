@@ -26,7 +26,8 @@ BEGIN
   IF existing_policies IS NOT NULL THEN
     RAISE EXCEPTION 'Review existing RLS policies before installing: %', existing_policies;
   END IF;
-END $check$;
+END;
+$check$;
 
 -- RLS enabled on ALL public app tables. Do not expose unpublished/private data to anon.
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
