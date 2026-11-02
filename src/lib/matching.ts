@@ -68,5 +68,6 @@ export function scoreCandidate(project: ProjectFull, candidate: StudentProfile):
 export function rankCandidates(project: ProjectFull,candidates: StudentProfile[]): MatchResult[] {
  return candidates.filter(c=>c.discoverable && c.consent_at && c.id!==project.owner_id)
    .map(c=>scoreCandidate(project,c))
-   .sort((a,b)=>Number(b.eligible)-Number(a.eligible) || (b.score ?? -1)-(a.score ?? -1));
+   .filter(r=>r.eligible)
+   .sort((a,b)=>(b.score ?? -1)-(a.score ?? -1));
 }

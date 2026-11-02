@@ -1,3 +1,6 @@
+# ProjectLink
+ProjectLInk
+
 # ProjectLinkUMS — Full-ERD Integrated Backend + Web Demo
 
 **Version:** 2 Nov 2026 | **Audience:** Three-person EIS '26 team | **Stack:** Next.js 16, TypeScript, Supabase PostgreSQL/Auth, RLS, database RPC.
